@@ -1,47 +1,65 @@
-// Variable zum Speichern der Koordinaten des letzten toten Tokens
+// Variable to store coordinates of the last dead token
 export let lastDeadCoordinates = null;
 
-// Funktion 1: Loot auf dem Canvas spawnen
+/**
+ * Rolls loot tables based on configurations and spawns an Item Pile on the scene.
+ */
 export async function generateLootPile() {
-  const trinketName = game.settings.get("advanced-loot-system", "trinketTableName");
-  ui.notifications.info(`Würfele Loot aus Tabelle: ${trinketName}...`);
-
-  // HIER KOMMT DEIN WÜRFEL-CODE REIN (Auswertung der Tables, Sammeln der Item-Daten)
-  // ...
+  const moduleID = "item-piles-loot-generator";
   
-  // Dummy-Daten für diesen Test
-  const itemsToSpawn = []; // Hier die erwürfelten Item-Objekte einfügen
-  const goldAmount = 150; 
+  // Get settings values
+  const trinketName = game.settings.get(moduleID, "trinketTableName");
+  const potionName = game.settings.get(moduleID, "potionTableName");
+  const scrollName = game.settings.get(moduleID, "scrollTableName");
+  
+  ui.notifications.info(`Rolling loot...`);
 
-  // Position bestimmen (Entweder letzter Toter oder Bildschirmmitte)
-  const pos = lastDeadCoordinates || { x: canvas.scene.dimensions.sceneWidth / 2, y: canvas.scene.dimensions.sceneHeight / 2 };
+  // --- PLACEHOLDER FOR YOUR ROLL CODES ---
+  // You can port your rolling logic from Individual-Treasure.txt and Treasure.txt here.
+  // Extract results and format them into an array of Item Data Objects.
+  const rolledItems = []; 
+  const goldAmount = 100; // Replace with your goldRoll.total logic
+  // --------------------------------------
 
-  // Item Piles API Aufruf
+  // Determine spawn position: Last dead creature or center of current screen view
+  const spawnPosition = globalThis.lastDeadCoordinates || { 
+    x: canvas.scene.dimensions.sceneWidth / 2, 
+    y: canvas.scene.dimensions.sceneHeight / 2 
+  };
+
+  // Trigger Item Piles API to spawn the container
   if (game.modules.get("item-piles")?.active) {
     await ItemPiles.API.createItemPile({
       sceneId: canvas.scene.id,
-      position: pos,
+      position: spawnPosition,
       itemPileOptions: {
         name: "Dropped Loot",
         displayOne: true
       },
-      items: itemsToSpawn,
-      attributes: { "system.currency.gp": goldAmount }
+      items: rolledItems,
+      attributes: { "system.currency.gp": goldAmount } // Adjust attribute key to your game system (e.g., dnd5e)
     });
-    ui.notifications.success("Loot Pile auf der Karte platziert!");
+    ui.notifications.info("Loot pile created successfully on the canvas!");
+  } else {
+    ui.notifications.error("Item Piles module is not active!");
   }
 }
 
-// Funktion 2: Händler befüllen
+/**
+ * Restocks a targeted merchant token with randomized items.
+ */
 export async function restockMerchant() {
+  const moduleID = "item-piles-loot-generator";
   const targets = game.user.targets;
+
   if (targets.size !== 1) {
-    return ui.notifications.warn("Bitte visiere genau einen Händler-Token an!");
+    return ui.notifications.warn("Please target exactly one vendor token!");
   }
 
   const targetActor = targets.first().actor;
-  const shouldClear = game.settings.get("advanced-loot-system", "clearMerchantInventory");
+  const shouldClear = game.settings.get(moduleID, "clearMerchantInventory");
 
+  // Optional: Wipe existing stock before pushing new wares
   if (shouldClear) {
     const tradeableTypes = ["weapon", "equipment", "consumable", "loot"];
     const itemsToDelete = targetActor.items
@@ -50,16 +68,19 @@ export async function restockMerchant() {
 
     if (itemsToDelete.length > 0) {
       await targetActor.deleteEmbeddedDocuments("Item", itemsToDelete);
-      ui.notifications.info("Altes Inventar gelöscht.");
+      ui.notifications.info("Cleared old vendor stock.");
     }
   }
 
-  // HIER DEIN WÜRFEL-CODE FÜR HÄNDLER-WAREN REIN
-  const newItems = []; // Die erwürfelten Items
-  
-  if (game.modules.get("item-piles")?.active && newItems.length > 0) {
-    await ItemPiles.API.addItems(targetActor, newItems);
+  // --- PLACEHOLDER FOR MERCHANT STOCK LOGIC ---
+  // Roll items using your Spells.txt or Potions.txt algorithms
+  const newStockItems = []; 
+  // ---------------------------------------------
+
+  if (game.modules.get("item-piles")?.active && newStockItems.length > 0) {
+    await ItemPiles.API.addItems(targetActor, newStockItems);
+    ui.notifications.info(`Vendor "${targetActor.name}" restocked!`);
+  } else {
+    ui.notifications.warn("No items generated to restock or Item Piles is inactive.");
   }
-  
-  ui.notifications.success(`Händler ${targetActor.name} wurde neu beliefert!`);
 }
