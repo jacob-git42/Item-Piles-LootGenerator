@@ -1,30 +1,29 @@
 import { generateLootPile, restockMerchant } from "./loot-engine.js";
 
 export function createSidebarButtons(app, html, data) {
-  // Nur für Game Master anzeigen (optional)
+  // Only display buttons for Game Masters
   if (!game.user.isGM) return;
 
-  // HTML für die Buttons
   const buttonsHtml = `
-    <div class="advanced-loot-buttons" style="display: flex; gap: 5px; margin-bottom: 10px;">
-      <button id="btn-spawn-loot" type="button" style="flex: 1;">
+    <div class="item-piles-loot-buttons" style="display: flex; gap: 5px; margin-bottom: 10px;">
+      <button id="btn-generate-loot" type="button" style="flex: 1;">
         <i class="fas fa-gem"></i> Drop Loot
       </button>
-      <button id="btn-restock-merchant" type="button" style="flex: 1;">
-        <i class="fas fa-store"></i> Restock
+      <button id="btn-restock-vendor" type="button" style="flex: 1;">
+        <i class="fas fa-store"></i> Restock Vendor
       </button>
     </div>
   `;
 
-  // Fügt die Buttons ganz oben in den Chat-Tab ein
+  // Inject buttons into the Foundry chat log controls area
   html.find('#chat-controls').before(buttonsHtml);
 
-  // Klick-Events zuweisen
-  html.find('#btn-spawn-loot').click(() => {
+  // Bind click listeners to engine functions
+  html.find('#btn-generate-loot').click(() => {
     generateLootPile();
   });
 
-  html.find('#btn-restock-merchant').click(() => {
+  html.find('#btn-restock-vendor').click(() => {
     restockMerchant();
   });
 }
