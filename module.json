@@ -1,0 +1,29 @@
+{
+  "id": "item-piles-loot-generator",
+  "title": "Item Piles Loot Generator",
+  "description": "An automated loot and merchant system integrated with Item Piles to roll random tables, drop loot directly onto the canvas, and restock vendors.",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Your Name"
+    }
+  ],
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "relationships": {
+    "requires": [
+      {
+        "id": "item-piles",
+        "type": "module",
+        "compatibility": {
+          "minimum": "3.0.0"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ]
+}
